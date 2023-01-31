@@ -30,7 +30,7 @@ Resolved Ambient Air Pollution: https://pubs.acs.org/doi/full/10.1021/acs.est.5b
 * DataFusionPerformance.py: an example code for evaluating original CMAQ performance or data fused results performance.
 
 * main.py: an example code for doing data fusion (PM<sub>2.5</sub> is included as an example, output format is NetCDF).
-* FusedBurnImpacts: Calculate fire impacts based on the following formula $$\frac{CMAQ_{fire} - CMAQ_{no\ fire}}{CMAQ_{fire}} \cdot CMAQ_{fused\ fire}$$.
+* FusedBurnImpacts: Calculate fire impacts based on the following formula: $$\frac{CMAQ_{fire} - CMAQ_{no\ fire}}{CMAQ_{fire}} \cdot CMAQ_{fused\ fire}$$
 * util: provides utilities for plot figures or preprocessing CMAQ results or observations.
     * CombineNetCDF.py: provides a function to combine multiple daily CMAQ outputs to one NetCDF file. 
     * CombineObs.py: provides a function to combine multiple daily observations to one csv file. 
