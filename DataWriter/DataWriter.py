@@ -1,5 +1,6 @@
 import netCDF4
 import numpy as np
+from DataExtraction.ExtractCMAQ import CMAQGridInfo
 
 
 def combineFusionResults(data_fusion_results):
@@ -24,6 +25,7 @@ def combineFusionResults(data_fusion_results):
 
 def writeToNetCDF(data_fusion_results, pollutant_name, input_file_name, output_file_name):
     combined_results = combineFusionResults(data_fusion_results)
+    # Generate spatial information
     with netCDF4.Dataset(input_file_name) as src, netCDF4.Dataset(output_file_name, "w") as dst:
         # copy global attributes all at once via dictionary
         dst.setncatts(src.__dict__)
@@ -37,6 +39,51 @@ def writeToNetCDF(data_fusion_results, pollutant_name, input_file_name, output_f
                 dst[name][:] = combined_results
                 # copy variable attributes all at once via dictionary
                 dst[name].setncatts(src[name].__dict__)
+            if name == "TFLAG":
+                x = dst.createVariable(name, variable.datatype, variable.dimensions)
+                dst[name][:] = src[name][:]
+                # copy variable attributes all at once via dictionary
+                dst[name].setncatts(src[name].__dict__)
+
+
+def writeToNetCDFwithGeo(data_fusion_results, pollutant_name, input_file_name, output_file_name):
+    combined_results = combineFusionResults(data_fusion_results)
+    # Generate spatial information
+    grid_info = CMAQGridInfo(input_file_name)
+    with netCDF4.Dataset(input_file_name) as src, netCDF4.Dataset(output_file_name, "w") as dst:
+        # copy global attributes all at once via dictionary
+        dst.setncatts(src.__dict__)
+        # copy dimensions
+        for name, dimension in src.dimensions.items():
+            dst.createDimension(name, len(dimension))
+        # copy all file data except for the excluded
+        for name, variable in src.variables.items():
+            if name == pollutant_name:
+                x = dst.createVariable(name, variable.datatype, variable.dimensions)
+                dst[name][:] = combined_results
+                # copy variable attributes all at once via dictionary
+                dst[name].setncatts(src[name].__dict__)
+
+                # Lat
+                x = dst.createVariable("Lat", variable.datatype, ('ROW', 'COL'))
+                dst["Lat"][:] = grid_info["Lat"]
+                description = {
+                    "long_name": "Latitude",
+                    "units": "degree",
+                    "var_desc": "Latitude coordinate for CMAQ grids"
+                }
+                dst["Lat"].setncatts(description)
+
+                # Lon
+                x = dst.createVariable("Lon", variable.datatype, ('ROW', 'COL'))
+                dst["Lon"][:] = grid_info["Lon"]
+                description = {
+                    "long_name": "Longitude",
+                    "units": "degree",
+                    "var_desc": "Longitude coordinate for CMAQ grids"
+                }
+                dst["Lon"].setncatts(description)
+
             if name == "TFLAG":
                 x = dst.createVariable(name, variable.datatype, variable.dimensions)
                 dst[name][:] = src[name][:]
