@@ -44,9 +44,17 @@ def ROBSData(combinedOBS, X, Y):
             naNIndex = np.isnan(OBS1 + OBS2)
             OBS1 = OBS1[~naNIndex]
             OBS2 = OBS2[~naNIndex]
+            
             # we cannot calculate correlation if data less than 2
             if OBS1.shape[0] <= 1 or OBS2.shape[0] <= 1:
                 continue
+            # we cannot calculate correlation if data is a constant
+            variance_obs1 = (OBS1 - np.mean(OBS1)) / np.mean(OBS1)
+            variance_obs2 = (OBS2 - np.mean(OBS2)) / np.mean(OBS2)
+            denominator_pearson_r = np.sum(variance_obs1 ** 2) * np.sum(variance_obs2 ** 2)
+            if denominator_pearson_r <= 1e-20:
+                continue
+            
             pearson_r = scipy.stats.pearsonr(OBS1, OBS2)
             corrCoef.append(pearson_r[0])
             # calculate the distance change meter to kilometer
