@@ -44,7 +44,7 @@ def ROBSData(combinedOBS, X, Y):
             naNIndex = np.isnan(OBS1 + OBS2)
             OBS1 = OBS1[~naNIndex]
             OBS2 = OBS2[~naNIndex]
-            
+
             # we cannot calculate correlation if data less than 2
             if OBS1.shape[0] <= 1 or OBS2.shape[0] <= 1:
                 continue
@@ -54,7 +54,7 @@ def ROBSData(combinedOBS, X, Y):
             denominator_pearson_r = np.sum(variance_obs1 ** 2) * np.sum(variance_obs2 ** 2)
             if denominator_pearson_r <= 1e-20:
                 continue
-            
+
             pearson_r = scipy.stats.pearsonr(OBS1, OBS2)
             corrCoef.append(pearson_r[0])
             # calculate the distance change meter to kilometer
@@ -82,31 +82,39 @@ def ROBS(corrCoef, distance):
 
 
 def R1(obsDict, geo, Rcoll, r):
+    # If there is no observation, R1 = 0, FC = FC2
+    CMAQTime = geo["time"]
+    OBSTime = obsDict["dateSeries"]
     obsConc = obsDict["Conc"]
     obsX = obsDict["X"]
     obsY = obsDict["Y"]
     spatialShape = geo["X"].shape
-    dateRange = obsConc.shape[0]
+    dateRange = len(CMAQTime)
     siteSize = len(obsX)
     result = np.empty((dateRange, spatialShape[0], spatialShape[1]))
     result[:] = np.NaN
     for i in range(0, dateRange):
-        # Find each day's valid site
-        invalidSite = np.isnan(obsConc[i, :])
-        obsXDaily = obsX.copy()
-        obsYDaily = obsY.copy()
-        obsXDaily[invalidSite] = np.NaN
-        obsYDaily[invalidSite] = np.NaN
-        # Find the nearest site for each grids
-        for j in range(0, spatialShape[0]):
-            for k in range(0, spatialShape[1]):
-                xTmp = geo["X"][j, k]
-                yTmp = geo["Y"][j, k]
-                distance = np.sqrt(np.power((obsXDaily - xTmp), 2) + np.power((obsYDaily - yTmp), 2))
-                # calculate the distance change meter to kilometer
-                if np.isnan(distance).all():
-                    result[i, j, k] = 0
-                else:
-                    minDistance = np.nanmin(distance)/1000
-                    result[i, j, k] = Rcoll * np.exp(-minDistance/r)
+        cur_time = CMAQTime[i]
+        if cur_time in OBSTime:
+            obs_time_idx = OBSTime.index(cur_time)
+            # Find each day's valid site
+            invalidSite = np.isnan(obsConc[obs_time_idx, :])
+            obsXDaily = obsX.copy()
+            obsYDaily = obsY.copy()
+            obsXDaily[invalidSite] = np.NaN
+            obsYDaily[invalidSite] = np.NaN
+            # Find the nearest site for each grids
+            for j in range(0, spatialShape[0]):
+                for k in range(0, spatialShape[1]):
+                    xTmp = geo["X"][j, k]
+                    yTmp = geo["Y"][j, k]
+                    distance = np.sqrt(np.power((obsXDaily - xTmp), 2) + np.power((obsYDaily - yTmp), 2))
+                    # calculate the distance change meter to kilometer
+                    if np.isnan(distance).all():
+                        result[i, j, k] = 0
+                    else:
+                        minDistance = np.nanmin(distance)/1000
+                        result[i, j, k] = Rcoll * np.exp(-minDistance/r)
+        else:
+            result[i, :, :] = 0
     return result
