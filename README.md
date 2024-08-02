@@ -6,8 +6,6 @@ Resolved Ambient Air Pollution: https://pubs.acs.org/doi/full/10.1021/acs.est.5b
   
 * The code is implemented by Zongrun Li (zli867@gatech.edu)
 
-* Give me a :star: if you like it.
-
 ## Folder Structure
 * DataExtraction: includes functions to extract observation or CMAQ
     * ExtractCMAQ.py: functions to extract CMAQ
