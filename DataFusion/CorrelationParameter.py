@@ -26,7 +26,9 @@ def RCMAQ(OBSConc, CMAQConc):
         if len(CMAQConcTmp) <= 1 or len(OBSConcTmp) <= 1:
             continue
         pearson_r = scipy.stats.pearsonr(CMAQConcTmp, OBSConcTmp)
-        corrCoef.append(pearson_r[0])
+        # There are some reason make pearson r as valid. For example, all data are zeros
+        if not np.isnan(pearson_r[0]):
+            corrCoef.append(pearson_r[0])
 
     R2 = np.mean(corrCoef)
     return R2
@@ -56,15 +58,17 @@ def ROBSData(combinedOBS, X, Y):
                 continue
 
             pearson_r = scipy.stats.pearsonr(OBS1, OBS2)
-            corrCoef.append(pearson_r[0])
-            # calculate the distance change meter to kilometer
-            X1 = X[i]/1000
-            Y1 = Y[i]/1000
-            X2 = X[j]/1000
-            Y2 = Y[j]/1000
-            d = np.sqrt((X1 - X2) * (X1 - X2) + (Y1 - Y2) * (Y1 - Y2))
-            d = np.asscalar(d)
-            distance.append(d)
+            # There are some reason make pearson r as valid. For example, all data are zeros, we do not include for R2 training
+            if not np.isnan(pearson_r[0]):
+                corrCoef.append(pearson_r[0])
+                # calculate the distance change meter to kilometer
+                X1 = X[i]/1000
+                Y1 = Y[i]/1000
+                X2 = X[j]/1000
+                Y2 = Y[j]/1000
+                d = np.sqrt((X1 - X2) * (X1 - X2) + (Y1 - Y2) * (Y1 - Y2))
+                d = np.asscalar(d)
+                distance.append(d)
     corrCoef = np.array(corrCoef)
     corrCoef = corrCoef.reshape(-1, 1)
     distance = np.array(distance)

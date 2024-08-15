@@ -13,6 +13,9 @@ from DataFusion.dataFusion import FC
 from DataFusion.CorrelationParameter import R1
 from DataFusion.dataFusion import weightFactor
 import sys
+from sklearn.model_selection import KFold
+from DataFusion.adjustCMAQ import adjustCMAQ
+from Evaluation.StatisticalMetrics import RMSE
 
 
 def dataFusion(CMAQList, OBSList, geo, method='default'):
@@ -67,12 +70,31 @@ def dataFusion(CMAQList, OBSList, geo, method='default'):
         alpha = alpha_nonlinear
         beta = beta_nonlinear
     else:
+        # cross validation for model selection if we have enough data
+        if len(CMAQ_at_obs_yearly_mean_all) >= 10:
+            non_linear_score, linear_score = [], []
+            kf = KFold(n_splits=10, random_state=100, shuffle=True)
+            for i, (train_index, test_index) in enumerate(kf.split(obs_yearly_mean_all)):
+                cur_obs_train, cur_cmaq_train = obs_yearly_mean_all[train_index], CMAQ_at_obs_yearly_mean_all[train_index]
+                cur_obs_test, cur_cmaq_test = obs_yearly_mean_all[test_index], CMAQ_at_obs_yearly_mean_all[test_index]
+                # non linear
+                alpha_nonlinear, beta_nonlinear, _ = adjustParameters(cur_cmaq_train,cur_obs_train)
+                nonlinear_predict = adjustCMAQ(cur_cmaq_test, alpha_nonlinear, beta_nonlinear)
+                cur_nonlinear_score = RMSE(nonlinear_predict, cur_obs_test)
+                non_linear_score.append(cur_nonlinear_score)
+                # linear
+                alpha_linear, beta_linear, _ = adjustParamentersLinear(cur_cmaq_train, cur_obs_train)
+                linear_predict = adjustCMAQ(cur_cmaq_test, alpha_linear, beta_linear)
+                cur_linear_score = RMSE(linear_predict, cur_obs_test)
+                linear_score.append(cur_linear_score)
+            score_linear = np.mean(linear_score)
+            score_nonlinear = np.mean(non_linear_score)
         if score_linear >= score_nonlinear:
-            print("Select linear adjustment for CMAQ, R2 score is: " + str(score_linear))
+            print("Select linear adjustment for CMAQ, RMSE score is: " + str(score_linear))
             alpha = alpha_linear
             beta = beta_linear
         else:
-            print("Select nonlinear adjustment for CMAQ, R2 score is: " + str(score_nonlinear))
+            print("Select nonlinear adjustment for CMAQ, RMSE score is: " + str(score_nonlinear))
             alpha = alpha_nonlinear
             beta = beta_nonlinear
 

@@ -1,7 +1,7 @@
 from sklearn import linear_model
 import numpy as np
 from scipy.optimize import curve_fit
-from sklearn.metrics import r2_score
+from Evaluation.StatisticalMetrics import RMSE
 
 
 def powerFunc(x, alpha, beta):
@@ -31,8 +31,8 @@ def adjustParameters(CMAQatObsConc, obsMeanConc):
     # evaluate performance by R2
 
     adjusted_CMAQ = adjustCMAQ(CMAQatObsConc, alpha, beta)
-    r2 = r2_score(adjusted_CMAQ, obsMeanConc)
-    return alpha, beta, r2
+    score = RMSE(adjusted_CMAQ, obsMeanConc)
+    return alpha, beta, score
 
 # OBS = alpha * CMAQ^beta => regress for OBS and CMAQ^beta
 def adjustParamentersYearly(beta, CMAQatObsConc, obsMeanConc):
@@ -51,8 +51,8 @@ def adjustParamentersLinear(CMAQatObsConc, obsMeanConc):
     alpha = reg.coef_[0][0]
     # evaluate performance by R2
     adjusted_CMAQ = reg.predict(CMAQ_beta)
-    r2 = r2_score(adjusted_CMAQ, obsMeanConc)
-    return alpha, 1.0, r2
+    score = RMSE(adjusted_CMAQ, obsMeanConc)
+    return alpha, 1.0, score
 
 
 def adjustCMAQ(CMAQYearlyConc, alpha, beta):

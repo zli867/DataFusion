@@ -1,7 +1,7 @@
 import netCDF4
 import numpy as np
 from DataExtraction.ExtractCMAQ import CMAQGridInfo
-
+import shutil
 
 def combineFusionResults(data_fusion_results):
     """
@@ -25,25 +25,10 @@ def combineFusionResults(data_fusion_results):
 
 def writeToNetCDF(data_fusion_results, pollutant_name, input_file_name, output_file_name):
     combined_results = combineFusionResults(data_fusion_results)
-    # Generate spatial information
-    with netCDF4.Dataset(input_file_name) as src, netCDF4.Dataset(output_file_name, "w") as dst:
-        # copy global attributes all at once via dictionary
-        dst.setncatts(src.__dict__)
-        # copy dimensions
-        for name, dimension in src.dimensions.items():
-            dst.createDimension(name, len(dimension))
-        # copy all file data except for the excluded
-        for name, variable in src.variables.items():
-            if name == pollutant_name:
-                x = dst.createVariable(name, variable.datatype, variable.dimensions)
-                dst[name][:] = combined_results
-                # copy variable attributes all at once via dictionary
-                dst[name].setncatts(src[name].__dict__)
-            if name == "TFLAG":
-                x = dst.createVariable(name, variable.datatype, variable.dimensions)
-                dst[name][:] = src[name][:]
-                # copy variable attributes all at once via dictionary
-                dst[name].setncatts(src[name].__dict__)
+    shutil.copyfile(input_file_name, output_file_name)
+    dset = netCDF4.Dataset(output_file_name, 'r+')
+    dset[pollutant_name][:] = combined_results
+    dset.close()
 
 
 def writeToNetCDFwithGeo(data_fusion_results, pollutant_name, input_file_name, output_file_name):

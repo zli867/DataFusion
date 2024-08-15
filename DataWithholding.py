@@ -13,8 +13,8 @@ CMAQ_pollutant = "PM25_TOT_AVG"
 obs_pollutant = "PM25"
 k_fold = 10
 
-CMAQList = extractCMAQ(CMAQ_pollutant, CMAQ_file)
 geo = CMAQGridInfo(CMAQ_file)
+CMAQList = extractCMAQ(CMAQ_pollutant, CMAQ_file, geo)
 OBSList = extractOBS(obs_pollutant, obs_file, geo)
 cmaq_performance = stats_metrics(CMAQList[0], OBSList[0], geo)
 print("CMAQ performance: ")

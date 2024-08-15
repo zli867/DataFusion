@@ -1,4 +1,4 @@
-name: DataFusion
+name: DataFusionSF
 channels:
   - anaconda
   - defaults
