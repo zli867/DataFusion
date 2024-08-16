@@ -25,20 +25,20 @@
 # print(np.mean(non_linear_score))
 # print(np.mean(linear_score))
 
-import netCDF4 as nc
-import numpy as np
-filename = "/Volumes/DataStorage/DataFusionData/GC/GC_Combine_2015.nc4"
-# filename = "/Volumes/Expansion/DataFusionData/GC/2015/GEOSChem.SpeciesConc.20150621_0000z.nc4"
-ds = nc.Dataset(filename)
-o3 = ds["O3_MDA8"][:] * 1e9
-# # o3 = ds["SpeciesConc_O3"][0:10, 0, :, :] * 1e9
-import matplotlib.pyplot as plt
+# import netCDF4 as nc
+# import numpy as np
+# filename = "/Volumes/DataStorage/DataFusionData/GC/GC_Combine_2015.nc4"
+# # filename = "/Volumes/Expansion/DataFusionData/GC/2015/GEOSChem.SpeciesConc.20150621_0000z.nc4"
+# ds = nc.Dataset(filename)
+# o3 = ds["O3_MDA8"][:] * 1e9
+# # # o3 = ds["SpeciesConc_O3"][0:10, 0, :, :] * 1e9
+# import matplotlib.pyplot as plt
 
-for i in range(0, len(o3)):
-    cur_o3 = np.squeeze(o3[i, :, :, :])
-    plt.pcolor(cur_o3)
-    plt.colorbar()
-    plt.show()
+# for i in range(0, len(o3)):
+#     cur_o3 = np.squeeze(o3[i, :, :, :])
+#     plt.pcolor(cur_o3)
+#     plt.colorbar()
+#     plt.show()
 
 # # # import pandas as pd
 # filename = "/Volumes/Expansion/DataFusionData/GC/2015/GEOSChem.SpeciesConc.20150621_0000z.nc4"
@@ -51,3 +51,15 @@ for i in range(0, len(o3)):
 # df = pd.read_csv(filename)
 # df["O3"] = df["O3"] * 1e-9
 # df.to_csv("/Volumes/DataStorage/DataFusionData/obs/O3_obs_2010_2019_CONUS_GC.csv", index=False)
+
+# import pandas as pd
+# filename = "/Volumes/DataStorage/DataFusionData/CMAQ/O3_obs_2010_2019_CONUS_ppb.csv"
+# df = pd.read_csv(filename)
+# df = df.sample(frac=0.1).reset_index(drop=True)
+# df.to_csv("/Volumes/DataStorage/DataFusionData/CMAQ/O3_obs_2010_2019_sample_ppb.csv", index=False)
+
+import pandas as pd
+filename = "/Volumes/DataStorage/DataFusionData/obs/NO2_obs_2010_2019_CONUS_ppb.csv"
+df = pd.read_csv(filename)
+df["NO2"] = df["NO2"] * 1e-9
+df.to_csv("/Volumes/DataStorage/DataFusionData/obs/NO2_obs_2010_2019_CONUS_GC.csv", index=False)

@@ -18,7 +18,7 @@ datafusion_results = dataFusion(CMAQList, OBSList, geo)
 writeToNetCDF(datafusion_results, CMAQ_pollutant, CMAQ_file, data_fusion_output)
 
 # # GC Example
-# GC_file = "/Volumes/DataStorage/DataFusionData/fused/GC_Combine_2015_fused_O3.nc4"
+# GC_file = "/Volumes/DataStorage/DataFusionData/fused/GC_Combine_2015_O3_fused.nc4"
 # obs_file = "/Volumes/DataStorage/DataFusionData/GC/NO2_obs_2010_2019_CONUS_GC.csv"
 # data_fusion_output = "/Volumes/DataStorage/DataFusionData/fused/GC_Combine_2015_fused.nc4"
 # CMAQ_pollutant = "NO2_AVG"

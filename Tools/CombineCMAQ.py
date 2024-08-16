@@ -2,8 +2,8 @@ import netCDF4
 import os
 
 pollutant_names = ["O3_MDA8", "NO2_AVG", "PM25_AVG"]
-dir = "/Volumes/Expansion/DataFusionData/"
-output_file = "/Volumes/Expansion/DataFusionData/CCTM.ACONC.combined.FIRE.hires4.2015_2020.nc"
+dir = "/Volumes/Expansion/DataFusionData/CMAQ/test/"
+output_file = "/Volumes/Expansion/DataFusionData/CCTM.ACONC.combined.test.nc"
 
 filenames = os.listdir(dir)
 #  sort the filename to make sure the CMAQ data is from previous year to current year

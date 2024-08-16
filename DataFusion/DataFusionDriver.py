@@ -146,10 +146,9 @@ def dataFusion(CMAQList, OBSList, geo, method='default'):
         FC_1 = dataFusionOne(yearly_CMAQ, yearly_obs, geo, current_alpha, beta)
         FC_2 = dataFusionTwo(yearly_CMAQ, current_alpha, beta, A, t_max)
 
-        R_1 = R1(yearly_obs, geo, Rcoll, r)
+        R_1 = R1(yearly_obs, geo, Rcoll, r, year)
         W = weightFactor(R_1, R2)
         FC_opt = W * FC_1 + (1 - W) * FC_2
-
         yearly_fused_conc = FC_opt
         fused_conc[year] = yearly_fused_conc
 

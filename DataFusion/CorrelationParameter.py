@@ -84,41 +84,33 @@ def ROBS(corrCoef, distance):
     r = 1/popt[1]
     return [r, Rcoll]
 
-
-def R1(obsDict, geo, Rcoll, r):
+# TODO Need to improve
+def R1(obsDict, geo, Rcoll, r, year):
     # If there is no observation, R1 = 0, FC = FC2
-    CMAQTime = geo["time"]
+    # return size: [CMAQ_yearly_range, m, n]
+    # A bug found, 2024/08/15
+    CMAQTime = []
+    for t in geo["time"]:
+        if t.year == year:
+            CMAQTime.append(t)
     OBSTime = obsDict["dateSeries"]
     obsConc = obsDict["Conc"]
     obsX = obsDict["X"]
     obsY = obsDict["Y"]
     spatialShape = geo["X"].shape
     dateRange = len(CMAQTime)
-    siteSize = len(obsX)
-    result = np.empty((dateRange, spatialShape[0], spatialShape[1]))
-    result[:] = np.NaN
+    result = np.zeros((dateRange, spatialShape[0], spatialShape[1]))
     for i in range(0, dateRange):
         cur_time = CMAQTime[i]
         if cur_time in OBSTime:
             obs_time_idx = OBSTime.index(cur_time)
             # Find each day's valid site
-            invalidSite = np.isnan(obsConc[obs_time_idx, :])
-            obsXDaily = obsX.copy()
-            obsYDaily = obsY.copy()
-            obsXDaily[invalidSite] = np.NaN
-            obsYDaily[invalidSite] = np.NaN
-            # Find the nearest site for each grids
-            for j in range(0, spatialShape[0]):
-                for k in range(0, spatialShape[1]):
-                    xTmp = geo["X"][j, k]
-                    yTmp = geo["Y"][j, k]
-                    distance = np.sqrt(np.power((obsXDaily - xTmp), 2) + np.power((obsYDaily - yTmp), 2))
-                    # calculate the distance change meter to kilometer
-                    if np.isnan(distance).all():
-                        result[i, j, k] = 0
-                    else:
-                        minDistance = np.nanmin(distance)/1000
-                        result[i, j, k] = Rcoll * np.exp(-minDistance/r)
+            obsXDaily, obsYDaily = obsX.copy(), obsY.copy()
+            valid_idx = ~np.isnan(obsConc[obs_time_idx, :])
+            obsXDaily, obsYDaily = obsXDaily[valid_idx], obsYDaily[valid_idx]
+            distance = np.sqrt(np.power((obsXDaily - geo["X"][:, :, np.newaxis]), 2) + np.power((obsYDaily - geo["Y"][:, :, np.newaxis]), 2))
+            minDistance = np.min(distance, axis=2) / 1000
+            result[i, :, :] = Rcoll * np.exp(-minDistance/r)
         else:
             result[i, :, :] = 0
     return result
