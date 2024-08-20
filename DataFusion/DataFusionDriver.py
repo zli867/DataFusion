@@ -12,13 +12,14 @@ from DataFusion.dataFusion import temporalCorrection
 from DataFusion.dataFusion import FC
 from DataFusion.CorrelationParameter import R1
 from DataFusion.dataFusion import weightFactor
-import sys
+import sys, os
 from sklearn.model_selection import KFold
 from DataFusion.adjustCMAQ import adjustCMAQ
 from Evaluation.StatisticalMetrics import RMSE
+from concurrent.futures import ProcessPoolExecutor, as_completed
 
 
-def dataFusion(CMAQList, OBSList, geo, method='default'):
+def dataFusion(CMAQList, OBSList, geo, method='default', worker=1):
     # Generate Alpha and Beta
     combined_CMAQ_dict = CMAQList[0]
     combined_obs_dict = OBSList[0]
@@ -137,19 +138,43 @@ def dataFusion(CMAQList, OBSList, geo, method='default'):
     A, t_max = temporalCorrection(all_obs_adjusted_CMAQ_ratio, all_obs_time_series)
     print("A:" + str(A) + " , t_max: " + str(t_max))
 
+    global_params = {
+        "A": A,
+        "t_max": t_max,
+        "beta": beta,
+        "Rcoll": Rcoll,
+        "r": r,
+        "R2": R2
+    }
+    
     fused_conc = {}
-    for year in processed_years:
-        print("Data fusion for " + str(year))
-        current_alpha = alpha_yearly[year]
-        yearly_obs = yearly_obs_dict[year]
-        yearly_CMAQ = yearly_CMAQ_dict[year]
-        FC_1 = dataFusionOne(yearly_CMAQ, yearly_obs, geo, current_alpha, beta)
-        FC_2 = dataFusionTwo(yearly_CMAQ, current_alpha, beta, A, t_max)
-
-        R_1 = R1(yearly_obs, geo, Rcoll, r, year)
-        W = weightFactor(R_1, R2)
-        FC_opt = W * FC_1 + (1 - W) * FC_2
-        yearly_fused_conc = FC_opt
-        fused_conc[year] = yearly_fused_conc
-
+    if worker == 1:
+        for year in processed_years:
+            cur_conc = yearly_fusion(year, alpha_yearly, yearly_obs_dict, yearly_CMAQ_dict, geo, global_params)
+            fused_conc[year] = cur_conc
+    else:
+        input_data = [(year, alpha_yearly, yearly_obs_dict, yearly_CMAQ_dict, geo, global_params) for year in processed_years]
+        # Use ProcessPoolExecutor for parallel processing
+        default_workers = min(32, os.cpu_count() + 4)
+        worker_count = min(worker, default_workers)
+        with ProcessPoolExecutor(max_workers=worker_count) as executor:
+            futures = {executor.submit(yearly_fusion, *args): args[0] for args in input_data}
+            for future in as_completed(futures):
+                year = futures[future]
+                fused_conc[year] = future.result()
     return fused_conc
+
+
+def yearly_fusion(year, alpha_yearly, yearly_obs_dict, yearly_CMAQ_dict, geo, global_params):
+    print("Data fusion for " + str(year))
+    current_alpha = alpha_yearly[year]
+    yearly_obs = yearly_obs_dict[year]
+    yearly_CMAQ = yearly_CMAQ_dict[year]
+    FC_1 = dataFusionOne(yearly_CMAQ, yearly_obs, geo, current_alpha, global_params["beta"])
+    FC_2 = dataFusionTwo(yearly_CMAQ, current_alpha, global_params["beta"], global_params["A"], global_params["t_max"])
+
+    R_1 = R1(yearly_obs, geo, global_params["Rcoll"], global_params["r"], year)
+    W = weightFactor(R_1, global_params["R2"])
+    FC_opt = W * FC_1 + (1 - W) * FC_2
+    yearly_fused_conc = FC_opt
+    return yearly_fused_conc

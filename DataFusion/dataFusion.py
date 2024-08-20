@@ -6,43 +6,32 @@ from scipy.optimize import curve_fit
 def dataFusionOne(CMAQDict, OBSDict, geoDict, alpha_yearly, beta):
     # Use CMAQAdjust function to calculate adjusted CMAQ
     FCData = FC(CMAQDict["Yearly"], alpha_yearly, beta)
-    result = np.empty(CMAQDict["Daily"].shape)
-    result[:] = np.NaN
-    CMAQTime = CMAQDict["Time"]
+    result = np.repeat(FCData[np.newaxis, :, :], repeats=CMAQDict["Daily"].shape[0], axis=0)
+    CMAQTime, OBSTime = CMAQDict["Time"], OBSDict["dateSeries"]
     dateRange = result.shape[0]
     # Use kriging to calculate ratio
     OBSConc = OBSDict["Conc"]
     OBSConcMean = np.nanmean(OBSConc, axis=0)
-    OBSTime = OBSDict["dateSeries"]
-    obsX = OBSDict["X"]
-    obsY = OBSDict["Y"]
-    predictX = geoDict["X"]
-    predictY = geoDict["Y"]
+    obsX, obsY = OBSDict["X"], OBSDict["Y"]
+    predictX, predictY = geoDict["X"], geoDict["Y"]
+    # TODO: Use parallel or not?
     for i in range(0, dateRange):
         current_time = CMAQTime[i]
         if current_time in OBSTime:
-            valid_krig = True
             obs_time_idx = OBSTime.index(current_time)
             OBSNormalized = OBSConc[obs_time_idx, :] / OBSConcMean
             # Krig method to interpolate the observation
             # delete the Nan number in array
             nanIndex = np.isnan(OBSNormalized)
             OBSNormalized = OBSNormalized[~nanIndex]
-            siteX = obsX[~nanIndex]
-            siteY = obsY[~nanIndex]
+            siteX, siteY = obsX[~nanIndex], obsY[~nanIndex]
             # If there is less than one observation, do not do kriging
             # if the data variance is zero (constant), do not do kriging
             if OBSNormalized.shape[0] == 0 or OBSNormalized.shape[0] == 1 or np.var(OBSNormalized) == 0:
-                valid_krig = False
-
-            if valid_krig:
-                krigRatio = krigingOBS(siteX, siteY, OBSNormalized, predictX, predictY)
-                resultDaily = krigRatio * FCData
+                continue
             else:
-                resultDaily = FCData
-        else:
-            resultDaily = FCData
-        result[i, :, :] = resultDaily
+                krigRatio = krigingOBS(siteX, siteY, OBSNormalized, predictX, predictY)
+                result[i, :, :] = krigRatio * FCData
     return result
 
 

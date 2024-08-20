@@ -47,8 +47,8 @@ def ROBSData(combinedOBS, X, Y):
             OBS1 = OBS1[~naNIndex]
             OBS2 = OBS2[~naNIndex]
 
-            # we cannot calculate correlation if data less than 2
-            if OBS1.shape[0] <= 1 or OBS2.shape[0] <= 1:
+            # we cannot calculate correlation if data less than 2 or all values are zeros <=> mean is zero
+            if OBS1.shape[0] <= 1 or OBS2.shape[0] <= 1 or np.mean(OBS1) == 0 or np.mean(OBS2) == 0:
                 continue
             # we cannot calculate correlation if data is a constant
             variance_obs1 = (OBS1 - np.mean(OBS1)) / np.mean(OBS1)
@@ -67,7 +67,6 @@ def ROBSData(combinedOBS, X, Y):
                 X2 = X[j]/1000
                 Y2 = Y[j]/1000
                 d = np.sqrt((X1 - X2) * (X1 - X2) + (Y1 - Y2) * (Y1 - Y2))
-                d = np.asscalar(d)
                 distance.append(d)
     corrCoef = np.array(corrCoef)
     corrCoef = corrCoef.reshape(-1, 1)
