@@ -1,9 +1,6 @@
 ## Authorship
-* The model is based on the paper: 
-Method for Fusing Observational Data and Chemical 
-Transport Model Simulations To Estimate Spatiotemporally 
-Resolved Ambient Air Pollution: https://pubs.acs.org/doi/full/10.1021/acs.est.5b05134
-  
+* The model is used to fuse observational data and chemical 
+transport model simulations
 * The code is implemented by Zongrun Li (zli867@gatech.edu)
 
 ## Folder Structure
@@ -21,36 +18,49 @@ Resolved Ambient Air Pollution: https://pubs.acs.org/doi/full/10.1021/acs.est.5b
       FC<sub>1</sub>, FC<sub>2</sub> and FC<sub>opt</sub>
     
 * DataWriter
-    * DataWriter.py: defines a function which writes data fusion results to NetCDF. Define functions here 
-      for other format outputs.
+    * DataWriter.py: defines a function which writes data fusion results to NetCDF. Define functions here for other format outputs.
 
 * Evaluation
-  * StatisticalMetrics.py: defines some statistical metrics for evaluating CMAQ or data fused CMAQ results performance. 
-    Current statistical metrics includes R<sup>2</sup> and RMSE.
-* DataFusionPerformance.py: an example code for evaluating original CMAQ performance or data fused results performance.
+  * StatisticalMetrics.py: defines some statistical metrics for evaluating CMAQ or data fused CMAQ results performance.
 
-* main.py: an example code for doing data fusion (PM<sub>2.5</sub> is included as an example, output format is NetCDF).
-* FusedBurnImpacts.py: Calculate fire impacts based on the following formula: $$\frac{CMAQ_{fire} - CMAQ_{no\ fire}}{CMAQ_{fire}} \cdot CMAQ_{fused\ fire}$$
-* util: provides utilities for plot figures or preprocessing CMAQ results or observations.
-    * CombineNetCDF.py: provides a function to combine multiple daily CMAQ outputs to one NetCDF file. 
-    * CombineObs.py: provides a function to combine multiple daily observations to one csv file. 
-    * GeoProcess.py: provides a function to plot US states.
-    
+* Tools
+  * CombineCMAQ.py: a utility to combine different years CMAQ outputs.
+  * CombineObs.py: a utility to combine different observation csv files.
+  * Hr2DayGC.py: a utility to calculate daily average, 1-hr maximum, MDA8, etc. (standard local time) concentration criteria from hourly GC outputs (UTC-0).
+
+* DataFusion_Evaluation.ipynb: utility for evaluating original CMAQ performance or data fused results performance.
+
 * Visualized_Data_Fusion.ipynb: provides part of visualization for data fusion process.
 
-* results: a folder used to store data fusion results.
+* main.py: an example code for doing data fusion (PM<sub>2.5</sub> is included as an example, output format is NetCDF).
+
+* FusedBurnImpacts.py: Calculate fire impacts based on the following formula: $$\frac{CMAQ_{fire} - CMAQ_{no\ fire}}{CMAQ_{fire}} \cdot CMAQ_{fused\ fire}$$
+
+* util: provides utilities for plot figures or preprocessing CMAQ results or observations.
+    * GeoProcess.py: provides a function to plot US states.
+    * DailyMetrics.py: convert hourly data to daily for different criteria, e.g.,daily average, 1-hr maximum, MDA8.
+    * VisualizationFunc.py: visualization helper functions.
+    * FormatConverter.py: a format converter for TFLAG variable in CMAQ.
+
+* DataWithholdingCMAQ.py: an example for doing 5-fold cross-validations under site-wise and random withholding strategies on CMAQ simulations.
+
+* DataWithholdingGC.py: an example for doing 5-fold cross-validations under site-wise and random withholding strategies on GC simulations.
 
 * data
     * geo: includes a US shapefile for plotting figures.
-    * You can put input data here.
-* datafusion.yml: conda environment for this project.
+    * timezone: includes a shapefile for the timezone region and its timezone.
+* datafusion.yml: conda environment for this project (tested on MacOS).
+* requirements.txt: conda environment for this project (tested on Linux).
 
 ## Build Up
 * Set up conda environment 
 ```
 conda env create -f datafusion.yml
 ```
-
+or
+```
+pip install -r requirements.txt
+```
 ## Run the Data Fusion Code
 ### Input data
 #### observation data:
@@ -87,3 +97,24 @@ obs_pollutant = "PM25"
 * CMAQ_pollutant: pollutant variable name you want to fused in CMAQ.
 * obs_pollutant: pollutant variable name you want to fused in observation file.
 
+### Other Chemical Transport Model
+1. Create the combined netCDF format daily simulation outputs.
+2. Implemet a function in DataExtraction/ExtractCMAQ.py. Examples of GEOS-Chem (GCGridInfo), CMAQ (CMAQGridInfo), WRF-Chem (WRFGridInfo) are provided. The return value is a dict which should include following geographic information of your CTM simulations: 
+* crs: coordinate reference system which is used to convert (lat, lon) $\Leftrightarrow$ (Y, X)
+* X: the X coordinates of each grid cell's center. It is used to calculate distance.
+* Y: the Y coordinates of each grid cell's center. It is used to calculate distance.
+* X_bdry: minimum and maximum of the domain's X.
+* Y_bdry: minimum and maximum of the domain's Y.
+* Lat: latitude of each grid cell's center.
+* Lon: longitude of each grid cell's center.
+* Lat_bdry: minimum and maximum of the domain's latitude.
+* Lon_bdry: minimum and maximum of the domain's longitude.
+* time: timestamp for the simulation time dimension.
+
+3. In main.py, replace 
+```
+geo = CMAQGridInfo(CMAQ_file)
+```
+with the function you implemented. Then, you are good to run the code.
+<br>
+**Notice**: For global model (for example, GC). You need a projection to convert latitude and longitude to X and Y since the model needs to calculate distance.

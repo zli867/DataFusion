@@ -29,10 +29,14 @@ def CRMSE(prediction, observation):
 
 
 def NMB(prediction, observation):
+    if np.sum(observation) == 0:
+        return np.nan
     return (np.sum(prediction - observation) / np.sum(observation)) * 100
 
 
 def NME(prediction, observation):
+    if np.sum(observation) == 0:
+        return np.nan
     return ((np.sum(np.abs(prediction - observation))) / np.sum(observation)) * 100
 
 

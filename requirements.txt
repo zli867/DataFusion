@@ -1,0 +1,117 @@
+afconfig==1.1.3
+afdatetime==2.0.0
+affine==2.3.1
+afscripting==2.0.0
+apps-consume==5.1.1
+asttokens==2.0.5
+attrs @ file:///croot/attrs_1695717823297/work
+backcall==0.2.0
+beautifulsoup4==4.11.1
+blueskykml==4.0.7
+boto3==1.16.52
+botocore==1.19.63
+Bottleneck @ file:///croot/bottleneck_1707864210935/work
+Brotli==1.0.9
+certifi @ file:///croot/certifi_1720453481653/work/certifi
+cftime @ file:///croot/cftime_1678830372931/work
+charset-normalizer @ file:///croot/charset-normalizer_1721748349566/work
+click @ file:///home/linux1/recipes/ci/click_1610990599742/work
+click-plugins==1.1.1
+cligj==0.7.2
+coverage==6.3.3
+cycler==0.11.0
+dash==1.1.1
+dash-bootstrap-components==0.7.0
+dash-core-components==1.1.1
+dash-daq==0.1.0
+dash-html-components==1.0.0
+dash-renderer==1.0.0
+dash-table==4.1.0
+dill @ file:///croot/dill_1715094664823/work
+eflookup==4.0.4
+emitcalc==3.0.1
+executing==0.8.3
+fccsmap==3.0.4
+filelock==3.7.0
+Fiona==1.8.18
+Flask==2.0.2
+Flask-Compress==1.10.1
+freezegun==1.2.2
+GDAL==3.3.1
+gdown==4.4.0
+geopandas==0.8.2
+geoutils==1.0.3
+green==3.2.5
+idna @ file:///croot/idna_1714398848350/work
+importlib-metadata==4.11.3
+iniconfig==1.1.1
+ipdb==0.13.9
+ipython==8.3.0
+itsdangerous==2.1.2
+jedi==0.18.1
+Jinja2==3.1.2
+jmespath==0.10.0
+joblib==1.2.0
+kiwisolver==1.4.2
+lxml==4.8.0
+MarkupSafe==2.1.1
+matplotlib==3.3.4
+matplotlib-inline==0.1.3
+met==3.0.2
+mkl-fft @ file:///croot/mkl_fft_1695058164594/work
+mkl-random @ file:///croot/mkl_random_1695059800811/work
+mkl-service==2.4.0
+multiprocess @ file:///home/conda/feedstock_root/build_artifacts/multiprocess_1706514634448/work
+munch==2.5.0
+nested-dict==1.61
+netCDF4 @ file:///home/conda/feedstock_root/build_artifacts/netcdf4_1630447999241/work
+numexpr @ file:///croot/numexpr_1683221822650/work
+numpy==1.20.0
+packaging==21.3
+pandas==0.25.3
+parso==0.8.3
+pickleshare==0.7.5
+Pillow==8.1.0
+platformdirs @ file:///croot/platformdirs_1692205439124/work
+plotly==5.8.0
+pluggy==1.0.0
+plumerise==2.0.3
+pooch @ file:///croot/pooch_1695850093751/work
+prompt-toolkit==3.0.29
+pure-eval==0.2.2
+py==1.11.0
+pyairfire==4.0.2
+Pygments==2.12.0
+PyKrige @ file:///home/conda/feedstock_root/build_artifacts/pykrige_1717447927530/work
+pymongo==3.12.3
+pyparsing==3.0.9
+pyproj==3.0.0.post1
+PySocks==1.7.1
+pytest==7.1.3
+python-dateutil @ file:///croot/python-dateutil_1716495738603/work
+pytz==2020.5
+rasterio==1.3.0
+rasterstats==0.15.0
+requests==2.25.1
+s3transfer==0.3.7
+scikit-learn==1.1.3
+scipy==1.9.3
+Shapely==1.7.1
+six @ file:///tmp/build/80754af9/six_1644875935023/work
+snuggs==1.4.7
+soupsieve==2.3.2.post1
+stack-data==0.2.0
+tenacity==8.0.1
+threadpoolctl==3.1.0
+timeprofile==1.1.3
+timezonefinder==5.1.0
+toml==0.10.2
+tomli==2.0.1
+tqdm==4.64.0
+traitlets==5.2.1.post0
+tzdata @ file:///croot/python-tzdata_1690578112552/work
+Unidecode==1.3.4
+urllib3 @ file:///croot/urllib3_1718912636303/work
+wcwidth==0.2.5
+Werkzeug==2.1.2
+xmltodict==0.12.0

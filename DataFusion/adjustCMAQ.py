@@ -15,20 +15,20 @@ def adjustParameters(CMAQatObsConc, obsMeanConc):
     :param obsMeanConc: observed values
     :return: alpha, beta and performance r2 score
     """
-    log_CMAQatOBSConc = np.log(CMAQatObsConc)
-    log_obs = np.log(obsMeanConc)
-    log_CMAQatOBSConc = log_CMAQatOBSConc.reshape(-1, 1)
-    log_obs = log_obs.reshape(-1, 1)
-    reg = linear_model.LinearRegression(fit_intercept=True).fit(log_CMAQatOBSConc, log_obs)
-    beta = reg.coef_[0][0]
-    log_alpha = reg.intercept_
-    alpha = np.exp(log_alpha)
-
-    # previous version, use scipy do the optimization
-    # popt, pcov = curve_fit(powerFunc, CMAQatObsConc, obsMeanConc, p0=(1, 1))
-    # alpha = popt[0]
-    # beta = popt[1]
-    # evaluate performance by R2
+    if 0 not in CMAQatObsConc and 0 not in obsMeanConc:
+        log_CMAQatOBSConc = np.log(CMAQatObsConc)
+        log_obs = np.log(obsMeanConc)
+        log_CMAQatOBSConc = log_CMAQatOBSConc.reshape(-1, 1)
+        log_obs = log_obs.reshape(-1, 1)
+        reg = linear_model.LinearRegression(fit_intercept=True).fit(log_CMAQatOBSConc, log_obs)
+        beta = reg.coef_[0][0]
+        log_alpha = reg.intercept_
+        alpha = np.exp(log_alpha)
+    else:
+        # previous version, use scipy do the optimization
+        popt, pcov = curve_fit(powerFunc, CMAQatObsConc, obsMeanConc, p0=(1, 1))
+        alpha = popt[0]
+        beta = popt[1]
 
     adjusted_CMAQ = adjustCMAQ(CMAQatObsConc, alpha, beta)
     score = RMSE(adjusted_CMAQ, obsMeanConc)

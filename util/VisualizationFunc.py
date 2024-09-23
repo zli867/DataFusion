@@ -55,29 +55,44 @@ def discrete_cmap(invertals, base_color_scheme="Spectral_r", low_value_color='wi
     return cmap
 
 
-def plotComparisonIntercept(X, Y, fig, ax):
+def plotComparisonIntercept(X, Y, bin_size, ax, fig):
     # scatter
-    # xy = np.vstack([X, Y])
-    # z = gaussian_kde(xy)(xy)
-    # cax = ax.scatter(X, Y, c=z, s=10, norm=colors.LogNorm(vmin=z.min(), vmax=z.max()))
-    _, _, _, cax = ax.hist2d(X, Y, (100, 100), cmap=discrete_cmap(20))
+    #histogram definition
+    N = len(X)
+    bins = [bin_size, bin_size] # number of bins
+    # histogram the data
+    hh, locx, locy = np.histogram2d(X, Y, bins=bins)
+    # Sort the points by density, so that the densest points are plotted last
+    Z = np.array([hh[np.argmax(a<=locx[1:]),np.argmax(b<=locy[1:])] for a,b in zip(X, Y)])
+    idx = Z.argsort()
+    # normalize z2
+    x2, y2, z2 = X[idx], Y[idx], Z[idx] / N
+    z2_min = np.min(z2[z2 > 0])
+    cax = ax.scatter(x2, y2, c=z2, cmap='jet', marker='.', s=2, norm=colors.LogNorm(vmin=z2_min, vmax=z2.max()))
     divider = make_axes_locatable(ax)
     d_cax = divider.append_axes('right', size='5%', pad=0.05)
-    cb = fig.colorbar(cax, cax=d_cax, extend='max')
-    cb.ax.set_ylabel('Density')
+    cb = fig.colorbar(cax, cax=d_cax, extend='both')
+    cb.ax.set_title('Density', fontsize=10)
+    # reg
     X = X.reshape(-1, 1)
-    # line
-    N = len(X)
     lin_model = LinearRegression().fit(X, Y)
     line_x = np.linspace(0, np.max(X)).reshape(-1, 1)
     line_y = lin_model.predict(line_x)
     # Confident intervals
     cf = get_conf_intercept(0.05, lin_model, X, Y)
-    slope_interval = [cf["lower"][1], cf["upper"][1]]
-    intercept_interval = [cf["lower"][0], cf["upper"][0]]
     r2_score = lin_model.score(X, Y)
-    ax.plot(line_x, line_y, 'r',
-                     label='y={:.2f}x+{:.2f} \n slope: [{:.2f}, {:.2f}] \n intercept: [{:.2f}, {:.2f}]'
-                           '\n $R^2$ = {:.2f} N = {}'.format(cf["coeffs"][1], cf["coeffs"][0], slope_interval[0], slope_interval[1],
-                                                      intercept_interval[0], intercept_interval[1], r2_score, N))
-    ax.legend(loc='lower right', fontsize=16)
+    reg_txt = 'y={:.2f}x+{:.2f}, $R^2$ = {:.2f}'.format(cf["coeffs"][1], cf["coeffs"][0], r2_score)
+    # ax.text(0.8, 0.2, reg_txt, horizontalalignment='center', verticalalignment='center', transform=ax.transAxes)
+    ax.plot(line_x, line_y, 'r')
+    return reg_txt
+
+
+def discrete_pos_neg_cmap(invertals, base_color_scheme="seismic", neutral_color='white', low_value_color='black', high_value_color='purple'):
+    invertals = (invertals // 2) * 2 + 1
+    cmap = plt.get_cmap(base_color_scheme, invertals)
+    cmaplist = [cmap(i) for i in range(cmap.N)]
+    cmap = colors.LinearSegmentedColormap.from_list('Custom cmap', cmaplist, cmap.N)
+    cmaplist[invertals // 2] = colors.to_rgba(neutral_color)
+    cmap.set_over(color=high_value_color, alpha=1.0)
+    cmap.set_under(color=low_value_color, alpha=1.0)
+    return cmap
