@@ -27,6 +27,7 @@ transport model simulations
   * CombineCMAQ.py: a utility that combines different years of CMAQ outputs.
   * CombineObs.py: a utility that combines different observation CSV files.
   * Hr2DayGC.py: a utility to calculate daily average, 1-hr maximum, MDA8, etc. (standard local time) concentration criteria from hourly GC outputs (UTC-0).
+  * Hr2DayWRFChem.py: a utility to calculate daily average, 1-hr maximum, MDA8, etc. (standard local time) concentration criteria from hourly WRF-Chem outputs (UTC-0).
 
 * DataFusion_Evaluation.ipynb: utility for evaluating original CMAQ performance or data fused results performance.
 
@@ -45,6 +46,8 @@ transport model simulations
 * DataWithholdingCMAQ.py: an example for doing 5-fold cross-validations under site-wise and random withholding strategies on CMAQ simulations.
 
 * DataWithholdingGC.py: an example for doing 5-fold cross-validations under site-wise and random withholding strategies on GC simulations.
+
+* DataWithholdingWRFChem.py: an example for doing 5-fold cross-validations under site-wise and random withholding strategies on WRF-Chem simulations.
 
 * data
     * geo: includes a US shapefile for plotting figures.
