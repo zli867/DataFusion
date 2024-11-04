@@ -3,7 +3,7 @@ import os
 
 pollutant_names = ["O3_MDA8", "NO2_AVG", "PM25_AVG"]
 dir = "/Volumes/Expansion/DataFusionData/CMAQ/test/"
-output_file = "/Volumes/Expansion/DataFusionData/CCTM.ACONC.combined.2015.nc"
+output_file = "/Volumes/Expansion/DataFusionData/CCTM.ACONC.combined.2017.nc"
 
 filenames = os.listdir(dir)
 #  sort the filename to make sure the CMAQ data is from previous year to current year
